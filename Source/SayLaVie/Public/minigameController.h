@@ -24,5 +24,5 @@ class SAYLAVIE_API AminigameController : public AActor{
 
 		virtual void Interact(){};
 
-		AminigameActor* Spawn(FVector);
+		virtual AminigameActor* Spawn(FVector);
 };

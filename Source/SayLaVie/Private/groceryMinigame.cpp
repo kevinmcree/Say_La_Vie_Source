@@ -4,7 +4,9 @@
 #include "minigameController.h"
 #include "groceryMinigame.h"
 #include "sayLaVieHUD.h"
+#include "ConstructorHelpers.h"
 #include "SayLaVieCharacter.h"
+#include "minigameActor.h"
 #include <iostream>
 #include <string>
 #include <random>
@@ -23,14 +25,14 @@ AgroceryMinigame::AgroceryMinigame(const class FPostConstructInitializePropertie
 
 	interactionTimer = 0;
 
-	collision = PCIP.CreateDefaultSubobject<USphereComponent>(this, TEXT("CollisionSubcomponent"));
+	//This is where we should attach a model to this minigameController
+	collision = PCIP.CreateDefaultSubobject<USphereComponent>(this, TEXT("CollisionSubComponent"));
 	RootComponent = collision;
 	mesh = PCIP.CreateDefaultSubobject<UStaticMeshComponent>(this, TEXT("TheMesh"));
+	const ConstructorHelpers::FObjectFinder<UStaticMesh> MeshObj(TEXT("/Game/StarterContent/Shapes/Shape_Cylinder"));
+	mesh->SetStaticMesh(MeshObj.Object);
 	mesh->SetSimulatePhysics(true);
 	mesh->AttachTo(RootComponent);
-	//static ConstructorHelpers::FObjectFinder Shape_TriPyramid(TEXT("StaticMesh'/Game/StarterContent/Shapes'"));
-	//mesh->SetStaticMesh(Shape_TriPyramid);
-	//This is where we should attach a model to this minigameController
 	isActive = true;
 	temp[0] = "Bonjour";
 	temp[1] = "Salut";
@@ -47,6 +49,11 @@ void AgroceryMinigame::Interact(){
 	ASayLaVieCharacter* criossant = Cast<ASayLaVieCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 	criossant->printToScreen = "Interact Successful";
 	AgroceryMinigame::talk();
+	FVector location;
+	location.X = -510;
+	location.Y = -440;
+	location.Z = 500;
+	AgroceryMinigame::Spawn(location);
 	//We need to set spawn "parameters" for minigameActors that will be spawned
 	//also this is where we should call the spawn function from
 
@@ -80,5 +87,27 @@ void AgroceryMinigame::Tick(float DeltaTime){
 			ASayLaVieCharacter* criossant = Cast<ASayLaVieCharacter>(UGameplayStatics::GetPlayerPawn(this, 0));
 			criossant->printToScreen = "";
 		}
+	}
+}
+
+AminigameActor*  AgroceryMinigame::Spawn(FVector location){
+	Super::Spawn(location);
+	UWorld* const World = GetWorld();
+	if (World){
+		//WhatToSpawn = new AminigameActor();
+		FActorSpawnParameters params;
+		params.Owner = this;
+		params.Instigator = Instigator;
+
+		//This is the rotation that the actor will spawn at
+		FRotator rotation;
+		rotation.Yaw = 0;
+		rotation.Pitch = 0;
+		rotation.Roll = 0;
+
+		return World->SpawnActor<AminigameActor>(AminigameActor::StaticClass(), location, rotation, params);
+	}
+	else{
+		return nullptr;
 	}
 }

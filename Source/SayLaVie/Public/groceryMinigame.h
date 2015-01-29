@@ -20,9 +20,12 @@ class SAYLAVIE_API AgroceryMinigame : public AminigameController
 
 	int32 interactionTimer;
 
+	TSubclassOf<class AminigameActor> WhatToSpawn;
+
 	void talk();
 
 	virtual void Tick(float DeltaSeconds) OVERRIDE;
+	virtual AminigameActor* Spawn(FVector location) OVERRIDE;
 
 public:
 	bool isActive;
